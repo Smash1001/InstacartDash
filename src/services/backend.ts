@@ -1,5 +1,5 @@
 import type { DashboardSettings, Runner, WeeklyPerformance } from '../types'
-import { demoBackend } from './demoBackend'
+import { supabaseBackend } from './supabaseBackend'
 
 export type ConnectionStatus = 'connecting' | 'live' | 'offline'
 
@@ -26,4 +26,4 @@ export interface DataBackend {
   subscribe(onChange: () => void, onStatus: (s: ConnectionStatus) => void): () => void
 }
 
-export const backend: DataBackend = demoBackend
+export const backend: DataBackend = supabaseBackend
