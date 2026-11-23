@@ -1,4 +1,5 @@
 import { AnnouncementBanner } from '../components/AnnouncementBanner'
+import { DashboardMenu } from '../components/DashboardMenu'
 import { Leaderboard } from '../components/Leaderboard'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { formatWeekRange } from '../lib/week'
@@ -17,6 +18,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top,_#0f2a22_0%,_#020617_60%)] text-white">
+      <DashboardMenu />
       <header className="flex shrink-0 items-end justify-between gap-[2vw] border-b border-white/10 px-[3vw] pb-[2vh] pt-[3vh]">
         <div className="min-w-0">
           <p className="truncate text-[clamp(0.8rem,1.15vw,1.5rem)] font-semibold uppercase tracking-[0.3em] text-emerald-400">
