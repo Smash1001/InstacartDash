@@ -27,11 +27,15 @@ export function createRunner(name: string): Promise<Runner> {
   return backend.createRunner(validateRunnerName(name))
 }
 
-export function renameRunner(id: string, name: string): Promise<Runner> {
-  return backend.updateRunner(id, { name: validateRunnerName(name) })
-}
-
-/** Soft-deactivate / reactivate. Runners are never hard-deleted. */
-export function setRunnerActive(id: string, isActive: boolean): Promise<Runner> {
-  return backend.updateRunner(id, { is_active: isActive })
+/**
+ * Rename and/or (de)activate a runner. Runners are never hard-deleted —
+ * deactivation hides them from the leaderboard but keeps their history.
+ */
+export function updateRunner(
+  id: string,
+  patch: { name?: string; is_active?: boolean },
+): Promise<Runner> {
+  const clean = { ...patch }
+  if (clean.name !== undefined) clean.name = validateRunnerName(clean.name)
+  return backend.updateRunner(id, clean)
 }

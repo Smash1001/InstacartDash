@@ -5,14 +5,14 @@ import { signOut } from '../services/authService'
 
 function Screen({ children }: { children: ReactNode }) {
   return (
-    <div className="grid min-h-full place-items-center bg-slate-950 p-6 text-center text-slate-200">
+    <div className="grid min-h-full place-items-center bg-board p-6 text-center text-ink">
       <div className="max-w-md space-y-4">{children}</div>
     </div>
   )
 }
 
 const linkBtn =
-  'inline-block rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20'
+  'inline-block rounded-lg bg-ink/10 px-4 py-2 text-sm font-semibold text-ink hover:bg-ink/20'
 
 /**
  * Gate a route behind sign-in. `adminOnly` additionally requires the admin role.
@@ -25,7 +25,7 @@ export function RequireAccess({ adminOnly = false, children }: { adminOnly?: boo
   if (loading) {
     return (
       <Screen>
-        <p className="text-slate-400">Loading…</p>
+        <p className="text-slate-600">Loading…</p>
       </Screen>
     )
   }
@@ -38,7 +38,7 @@ export function RequireAccess({ adminOnly = false, children }: { adminOnly?: boo
     return (
       <Screen>
         <p className="text-lg font-semibold">Can’t reach the server</p>
-        <p className="text-sm text-slate-400">Retrying automatically… ({roleError})</p>
+        <p className="text-sm text-slate-600">Retrying automatically… ({roleError})</p>
       </Screen>
     )
   }
@@ -49,7 +49,7 @@ export function RequireAccess({ adminOnly = false, children }: { adminOnly?: boo
         <p className="text-lg font-semibold">
           {role ? 'This page is for admins only' : 'Your account doesn’t have access yet'}
         </p>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600">
           Signed in as {session.user.email}.{' '}
           {role ? '' : 'Ask a store admin to grant you access.'}
         </p>

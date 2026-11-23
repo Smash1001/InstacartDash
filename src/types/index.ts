@@ -12,7 +12,10 @@ export interface WeeklyPerformance {
   runner_id: string
   /** Monday of the week, YYYY-MM-DD */
   week_start: string
-  avg_seconds_per_item: number
+  /** IPS over the last 7 days — whole number, used for ranking (lower is better) */
+  ips_7d: number
+  /** IPS over the last 30 days — whole number, optional */
+  ips_30d: number | null
   updated_at: string
   updated_by: string | null
 }
@@ -32,8 +35,9 @@ export type Role = 'admin' | 'viewer'
 export interface RankedRunner {
   id: string
   name: string
-  avgSecondsPerItem: number
-  /** Standard competition rank (1, 2, 2, 4) — equal averages share a rank */
+  ips7d: number
+  ips30d: number | null
+  /** Standard competition rank (1, 2, 2, 4) — equal 7-day IPS share a rank */
   rank: number
   tied: boolean
 }

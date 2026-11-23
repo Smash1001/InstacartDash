@@ -13,7 +13,11 @@ export interface DataBackend {
   updateRunner(id: string, patch: { name?: string; is_active?: boolean }): Promise<Runner>
 
   listPerformance(weekStart: string): Promise<WeeklyPerformance[]>
-  upsertPerformance(runnerId: string, weekStart: string, avg: number): Promise<WeeklyPerformance>
+  upsertPerformance(
+    runnerId: string,
+    weekStart: string,
+    values: { ips_7d: number; ips_30d: number | null },
+  ): Promise<WeeklyPerformance>
   deletePerformance(runnerId: string, weekStart: string): Promise<void>
 
   getSettings(): Promise<DashboardSettings>

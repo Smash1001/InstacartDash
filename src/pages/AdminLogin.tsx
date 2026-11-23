@@ -37,9 +37,9 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="grid min-h-full place-items-center bg-slate-50 p-4">
+    <div className="grid min-h-full place-items-center bg-board p-4">
       <form
-        className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+        className="w-full max-w-sm space-y-4 rounded-2xl bg-board-light p-6 shadow-sm ring-1 ring-ink/10"
         onSubmit={(e) => {
           e.preventDefault()
           submit()

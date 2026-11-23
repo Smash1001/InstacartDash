@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Shared "chalkboard grey" palette used by every page. */
+@theme {
+  --color-board: #d5d8dc;
+  --color-board-light: #e6e8eb;
+  --color-board-dark: #c6cad0;
+  --color-ink: #1e2328;
+}
+
 html,
 body,
 #root {
@@ -7,7 +15,7 @@ body,
 }
 
 body {
-  @apply bg-slate-950 antialiased;
+  @apply bg-board text-ink antialiased;
   font-family:
     "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;

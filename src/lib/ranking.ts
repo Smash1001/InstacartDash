@@ -1,14 +1,11 @@
 import type { RankedRunner, Runner, WeeklyPerformance } from '../types'
 
-/** Compare in hundredths so 4.1 and 4.10 are equal and floats don't drift. */
-const toHundredths = (n: number) => Math.round(n * 100)
-
 const byName = (a: string, b: string) =>
   a.localeCompare(b, undefined, { sensitivity: 'base' })
 
 /**
- * Rank active runners that have a measurement for the week.
- * Lower average is better. Equal averages share a rank (RANK() semantics:
+ * Rank active runners that have a 7-day IPS for the week.
+ * Lower IPS is better. Equal values share a rank (RANK() semantics:
  * 1, 2, 2, 4) and are displayed in name order.
  * Runners without a measurement are excluded — they get no score.
  */
@@ -17,33 +14,30 @@ export function rankRunners(
   performance: WeeklyPerformance[],
   weekStart: string,
 ): RankedRunner[] {
-  const avgByRunner = new Map<string, number>()
+  const perfByRunner = new Map<string, WeeklyPerformance>()
   for (const p of performance) {
-    if (p.week_start === weekStart) {
-      avgByRunner.set(p.runner_id, Number(p.avg_seconds_per_item))
-    }
+    if (p.week_start === weekStart) perfByRunner.set(p.runner_id, p)
   }
 
   const rows = runners
-    .filter((r) => r.is_active && avgByRunner.has(r.id))
-    .map((r) => ({ id: r.id, name: r.name, avgSecondsPerItem: avgByRunner.get(r.id)! }))
-    .sort(
-      (a, b) =>
-        toHundredths(a.avgSecondsPerItem) - toHundredths(b.avgSecondsPerItem) ||
-        byName(a.name, b.name) ||
-        a.id.localeCompare(b.id),
-    )
+    .filter((r) => r.is_active && perfByRunner.has(r.id))
+    .map((r) => {
+      const p = perfByRunner.get(r.id)!
+      return {
+        id: r.id,
+        name: r.name,
+        ips7d: Math.round(Number(p.ips_7d)),
+        ips30d: p.ips_30d == null ? null : Math.round(Number(p.ips_30d)),
+      }
+    })
+    .sort((a, b) => a.ips7d - b.ips7d || byName(a.name, b.name) || a.id.localeCompare(b.id))
 
   const countByScore = new Map<number, number>()
-  for (const r of rows) {
-    const k = toHundredths(r.avgSecondsPerItem)
-    countByScore.set(k, (countByScore.get(k) ?? 0) + 1)
-  }
+  for (const r of rows) countByScore.set(r.ips7d, (countByScore.get(r.ips7d) ?? 0) + 1)
 
   let rank = 0
   return rows.map((r, i) => {
-    const k = toHundredths(r.avgSecondsPerItem)
-    if (i === 0 || k !== toHundredths(rows[i - 1].avgSecondsPerItem)) rank = i + 1
-    return { ...r, rank, tied: countByScore.get(k)! > 1 }
+    if (i === 0 || r.ips7d !== rows[i - 1].ips7d) rank = i + 1
+    return { ...r, rank, tied: countByScore.get(r.ips7d)! > 1 }
   })
 }

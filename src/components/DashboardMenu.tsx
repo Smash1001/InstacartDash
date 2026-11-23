@@ -32,7 +32,7 @@ export function DashboardMenu() {
   }, [])
 
   const btn =
-    'rounded-lg bg-slate-900/90 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur hover:bg-slate-800'
+    'rounded-lg bg-board-light/95 px-3 py-1.5 text-sm font-semibold text-ink shadow ring-1 ring-ink/15 backdrop-blur hover:bg-white'
 
   return (
     <div

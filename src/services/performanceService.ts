@@ -2,24 +2,24 @@ import type { WeeklyPerformance } from '../types'
 import { isMonday } from '../lib/week'
 import { backend } from './backend'
 
-/** Matches NUMERIC(8,2): up to 999999.99 */
-const MAX_AVG = 999999.99
+/** Matches a Postgres INTEGER, with a sane ceiling for typos. */
+const MAX_IPS = 99_999
 
 function assertWeek(weekStart: string) {
   if (!isMonday(weekStart)) throw new Error('Week must start on a Monday.')
 }
 
 /**
- * Parse admin input into a positive average with at most two decimals.
- * Returns the number or throws a user-facing message.
+ * Parse admin input into a positive whole-number IPS.
+ * Returns null for an empty box; throws a user-facing message if invalid.
  */
-export function parseAverage(raw: string): number {
+export function parseIps(raw: string): number | null {
   const s = raw.trim()
-  if (!/^\d*\.?\d+$/.test(s)) throw new Error('Enter a number, e.g. 4.25')
+  if (s === '') return null
+  if (!/^\d+$/.test(s)) throw new Error('Whole numbers only, e.g. 42')
   const n = Number(s)
-  if (!(n > 0)) throw new Error('Must be greater than 0.')
-  if (n > MAX_AVG) throw new Error('Value is too large.')
-  if (!/^\d*(\.\d{1,2})?$/.test(s)) throw new Error('Use at most 2 decimal places.')
+  if (n <= 0) throw new Error('Must be greater than 0.')
+  if (n > MAX_IPS) throw new Error('Value is too large.')
   return n
 }
 
@@ -29,17 +29,20 @@ export function listPerformanceForWeek(weekStart: string): Promise<WeeklyPerform
 }
 
 /** Create or update the runner's single record for that week. */
-export function saveAverage(
+export function saveIps(
   runnerId: string,
   weekStart: string,
-  avg: number,
+  ips7d: number,
+  ips30d: number | null,
 ): Promise<WeeklyPerformance> {
   assertWeek(weekStart)
-  if (!(avg > 0) || avg > MAX_AVG) throw new Error('Average must be a positive number.')
-  return backend.upsertPerformance(runnerId, weekStart, avg)
+  const valid = (n: number) => Number.isInteger(n) && n > 0 && n <= MAX_IPS
+  if (!valid(ips7d)) throw new Error('7-day IPS must be a positive whole number.')
+  if (ips30d !== null && !valid(ips30d)) throw new Error('30-day IPS must be a positive whole number.')
+  return backend.upsertPerformance(runnerId, weekStart, { ips_7d: ips7d, ips_30d: ips30d })
 }
 
-export function clearAverage(runnerId: string, weekStart: string): Promise<void> {
+export function clearIps(runnerId: string, weekStart: string): Promise<void> {
   assertWeek(weekStart)
   return backend.deletePerformance(runnerId, weekStart)
 }

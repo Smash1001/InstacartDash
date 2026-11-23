@@ -1,5 +1,6 @@
-export function formatSeconds(n: number): string {
-  return Number(n).toFixed(2)
+/** IPS values are whole numbers. */
+export function formatIps(n: number | null | undefined): string {
+  return n == null ? '—' : String(Math.round(Number(n)))
 }
 
 const timestampFormat = new Intl.DateTimeFormat('en-US', {

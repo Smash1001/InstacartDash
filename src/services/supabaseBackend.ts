@@ -11,7 +11,7 @@ function fail(error: PostgrestError): never {
   if (error.code === 'PGRST116' || error.code === '42501') {
     throw new Error('You don’t have permission to make this change.')
   }
-  if (error.code === '23514') throw new Error('That value isn’t allowed (check it’s positive and valid).')
+  if (error.code === '23514') throw new Error('That value isn’t allowed (IPS must be a positive whole number).')
   if (error.code === '23505') throw new Error('That record already exists.')
   throw new Error(error.message)
 }
@@ -23,7 +23,8 @@ function unwrap<T>({ data, error }: { data: T | null; error: PostgrestError | nu
 
 const normalizePerf = (p: WeeklyPerformance): WeeklyPerformance => ({
   ...p,
-  avg_seconds_per_item: Number(p.avg_seconds_per_item),
+  ips_7d: Number(p.ips_7d),
+  ips_30d: p.ips_30d == null ? null : Number(p.ips_30d),
 })
 
 export const supabaseBackend: DataBackend = {
@@ -48,13 +49,13 @@ export const supabaseBackend: DataBackend = {
     return rows.map(normalizePerf)
   },
 
-  async upsertPerformance(runnerId, weekStart, avg) {
+  async upsertPerformance(runnerId, weekStart, values) {
     // updated_at / updated_by are set by a database trigger.
     const row = unwrap(
       await supabase
         .from('weekly_performance')
         .upsert(
-          { runner_id: runnerId, week_start: weekStart, avg_seconds_per_item: avg },
+          { runner_id: runnerId, week_start: weekStart, ...values },
           { onConflict: 'runner_id,week_start' },
         )
         .select()

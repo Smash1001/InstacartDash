@@ -5,9 +5,9 @@ type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-emerald-600/50',
   secondary:
-    'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 disabled:text-slate-400',
+    'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-board-light disabled:text-slate-400',
   danger: 'bg-white text-rose-700 ring-1 ring-inset ring-rose-300 hover:bg-rose-50 disabled:opacity-50',
-  ghost: 'text-slate-600 hover:bg-slate-100 disabled:opacity-50',
+  ghost: 'text-slate-700 hover:bg-ink/5 disabled:opacity-50',
 }
 
 export function Button({
