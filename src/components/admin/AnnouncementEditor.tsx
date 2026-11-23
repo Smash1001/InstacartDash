@@ -1,7 +1,6 @@
 import { formatTimestamp } from '../../lib/format'
 import { inputClass } from '../../lib/ui'
 import { MAX_ANNOUNCEMENT_LENGTH } from '../../services/announcementService'
-import { AnnouncementBanner } from '../AnnouncementBanner'
 
 export function AnnouncementEditor({
   value,
@@ -39,11 +38,6 @@ export function AnnouncementEditor({
         </span>
       </div>
       {error && <p className="mt-1 text-xs text-rose-600">{error}</p>}
-
-      <p className="mt-4 mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">TV preview</p>
-      <div className="overflow-hidden rounded-lg bg-board ring-1 ring-ink/10 [&_footer]:border-t-0 [&_footer]:px-4 [&_footer]:py-3 [&_p]:text-base">
-        <AnnouncementBanner text={value.trim()} />
-      </div>
     </section>
   )
 }

@@ -27,9 +27,6 @@ export default function Dashboard() {
           <h1 className="mt-[0.5vh] text-[clamp(1.75rem,3.4vw,4.25rem)] font-black leading-none tracking-tight">
             Instacart Runner Leaderboard
           </h1>
-          <p className="mt-[1vh] text-[clamp(0.8rem,1.05vw,1.3rem)] text-slate-600">
-            Ranked by IPS over the last 7 days — lower is better
-          </p>
         </div>
 
         <div className="shrink-0 text-right">
