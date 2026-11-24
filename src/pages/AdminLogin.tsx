@@ -1,26 +1,23 @@
 import { useState } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { errorMessage, inputClass } from '../lib/ui'
-import { signIn } from '../services/authService'
+import { getRememberedEmail, signIn } from '../services/authService'
 import { Button } from '../components/ui'
-
-/** Only allow same-app relative redirects. */
-function safeNext(next: string | null): string | null {
-  return next && next.startsWith('/') && !next.startsWith('//') ? next : null
-}
 
 export default function AdminLogin() {
   const { loading, session, role } = useAuth()
-  const [params] = useSearchParams()
-  const [email, setEmail] = useState('')
+  // Pre-fill the last account used on this browser.
+  const [email, setEmail] = useState(getRememberedEmail)
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Always land on the role's home page — admins on the admin panel, the TV
+  // (viewer) account on the leaderboard — never the last page visited.
+  // `replace` keeps /login out of history, so Back can't return to it.
   if (session && !loading) {
-    const fallback = role === 'admin' ? '/admin' : '/dashboard'
-    return <Navigate to={safeNext(params.get('next')) ?? fallback} replace />
+    return <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} replace />
   }
 
   async function submit() {
@@ -40,6 +37,8 @@ export default function AdminLogin() {
     <div className="grid min-h-full place-items-center bg-board p-4">
       <form
         className="w-full max-w-sm space-y-4 rounded-2xl bg-board-light p-6 shadow-sm ring-1 ring-ink/10"
+        method="post"
+        autoComplete="on"
         onSubmit={(e) => {
           e.preventDefault()
           submit()
@@ -57,6 +56,7 @@ export default function AdminLogin() {
           </label>
           <input
             id="email"
+            name="email"
             type="email"
             autoComplete="username"
             required
@@ -71,8 +71,11 @@ export default function AdminLogin() {
           </label>
           <input
             id="password"
+            name="password"
             type="password"
             autoComplete="current-password"
+            // Email already filled in → jump straight to the password.
+            autoFocus={!!email}
             required
             className={`${inputClass} w-full`}
             value={password}

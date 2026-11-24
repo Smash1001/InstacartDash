@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { signOut } from '../services/authService'
 
@@ -20,7 +20,6 @@ const linkBtn =
  */
 export function RequireAccess({ adminOnly = false, children }: { adminOnly?: boolean; children: ReactNode }) {
   const { loading, session, role, roleError } = useAuth()
-  const location = useLocation()
 
   if (loading) {
     return (
@@ -31,7 +30,8 @@ export function RequireAccess({ adminOnly = false, children }: { adminOnly?: boo
   }
 
   if (!session) {
-    return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />
+    // No redirect path is remembered: after login, users go to their role's home page.
+    return <Navigate to="/login" replace />
   }
 
   if (roleError) {

@@ -2,17 +2,62 @@ import type { Session } from '@supabase/supabase-js'
 import type { Role } from '../types'
 import { supabase } from '../lib/supabase'
 
+/**
+ * The last email used to sign in, kept so the login form can pre-fill it.
+ * Not prefixed "sb-", so sign-out leaves it alone. Passwords are never stored
+ * by the app — the browser's password manager handles those.
+ */
+const LAST_EMAIL_KEY = 'leaderboard:last-email'
+
+export function getRememberedEmail(): string {
+  try {
+    return window.localStorage.getItem(LAST_EMAIL_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
 export async function signIn(email: string, password: string): Promise<void> {
-  const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+  const cleanEmail = email.trim()
+  const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password })
   if (error) {
     throw new Error(
       error.message === 'Invalid login credentials' ? 'Incorrect email or password.' : error.message,
     )
   }
+  try {
+    window.localStorage.setItem(LAST_EMAIL_KEY, cleanEmail)
+  } catch {
+    // Storage unavailable (private mode) — just don't remember it.
+  }
 }
 
+/** Remove any Supabase auth data (session, refresh token) kept by the browser. */
+function clearStoredAuth() {
+  for (const store of [window.localStorage, window.sessionStorage]) {
+    for (const key of Object.keys(store)) {
+      if (key.startsWith('sb-')) store.removeItem(key)
+    }
+  }
+}
+
+/**
+ * Sign out completely:
+ *  1. revoke this device's session on the server ('local' scope, so the TV
+ *     account isn't also signed out on other screens),
+ *  2. wipe stored auth data even if the network call failed (the remembered
+ *     email and the browser's saved passwords are kept),
+ *  3. hard-navigate to /login, *replacing* the current history entry and
+ *     discarding all in-memory app state.
+ */
 export async function signOut(): Promise<void> {
-  await supabase.auth.signOut()
+  try {
+    await supabase.auth.signOut({ scope: 'local' })
+  } catch {
+    // Offline or server error — still clear everything locally below.
+  }
+  clearStoredAuth()
+  window.location.replace('/login')
 }
 
 export async function getSession(): Promise<Session | null> {
