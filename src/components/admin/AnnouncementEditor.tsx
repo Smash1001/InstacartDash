@@ -1,17 +1,14 @@
-import { formatTimestamp } from '../../lib/format'
 import { inputClass } from '../../lib/ui'
 import { MAX_ANNOUNCEMENT_LENGTH } from '../../services/announcementService'
 
 export function AnnouncementEditor({
   value,
   onChange,
-  lastPublished,
   error,
   dirty,
 }: {
   value: string
   onChange: (v: string) => void
-  lastPublished: string | null | undefined
   error?: string
   dirty: boolean
 }) {
@@ -31,8 +28,7 @@ export function AnnouncementEditor({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      <div className="mt-1 flex justify-between text-xs">
-        <span className="text-slate-500">Last published: {formatTimestamp(lastPublished)}</span>
+      <div className="mt-1 flex justify-end text-xs">
         <span className={tooLong ? 'font-semibold text-rose-600' : 'text-slate-500'}>
           {length}/{MAX_ANNOUNCEMENT_LENGTH}
         </span>

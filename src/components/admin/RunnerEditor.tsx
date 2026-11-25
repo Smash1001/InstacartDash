@@ -91,109 +91,103 @@ export function RunnerEditor({
     <section className="rounded-xl bg-board-light shadow-sm ring-1 ring-ink/10">
       <div className="flex items-center justify-between border-b border-ink/10 px-4 py-3">
         <h2 className="font-semibold text-slate-900">Runners &amp; IPS</h2>
-        <p className="text-xs text-slate-500">Whole numbers · lower is better · ranked by 7-day</p>
       </div>
 
-      <div
-        className={`${GRID} border-b border-ink/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500`}
-      >
-        <span>Runner</span>
-        <span className="text-right">IPS · 7 days</span>
-        <span className="text-right">IPS · 30 days</span>
-        <span />
-      </div>
+      <div className="overflow-x-auto">
+        <div className="min-w-[40rem]">
+          <div
+            className={`${GRID} border-b border-ink/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500`}
+          >
+            <span>Runner</span>
+            <span className="text-right">Last 7 days</span>
+            <span className="text-right">Last 30 days</span>
+            <span />
+          </div>
 
-      <ul className="divide-y divide-ink/10">
-        {main.map((r) => {
-          const d = drafts[r.id]
-          if (!d) return null
-          const deactivating = r.is_active && !d.isActive
-          const reactivating = !r.is_active && d.isActive
-          return (
-            <Row key={r.id} tone={deactivating ? 'muted' : isRunnerDirty(r.id) ? 'dirty' : undefined}>
-              <div>
+          <ul className="divide-y divide-ink/10">
+            {main.map((r) => {
+              const d = drafts[r.id]
+              if (!d) return null
+              const deactivating = r.is_active && !d.isActive
+              const reactivating = !r.is_active && d.isActive
+              return (
+                <Row key={r.id} tone={deactivating ? 'muted' : isRunnerDirty(r.id) ? 'dirty' : undefined}>
+                  <div>
+                    <Field
+                      label={`Name for ${r.name}`}
+                      value={d.name}
+                      onChange={(name) => onDraft(r.id, { name })}
+                      error={errors[fieldKey(r.id, 'name')]}
+                      disabled={deactivating}
+                    />
+                  </div>
+                  <Field
+                    label={`IPS last 7 days for ${r.name}`}
+                    numeric
+                    placeholder="—"
+                    value={d.ips7}
+                    onChange={(ips7) => onDraft(r.id, { ips7 })}
+                    error={errors[fieldKey(r.id, 'ips7')]}
+                    disabled={deactivating}
+                  />
+                  <Field
+                    label={`IPS last 30 days for ${r.name}`}
+                    numeric
+                    placeholder="—"
+                    value={d.ips30}
+                    onChange={(ips30) => onDraft(r.id, { ips30 })}
+                    error={errors[fieldKey(r.id, 'ips30')]}
+                    disabled={deactivating}
+                  />
+                  {deactivating || reactivating ? (
+                    <Button variant="ghost" onClick={() => onDraft(r.id, { isActive: r.is_active })}>
+                      Undo
+                    </Button>
+                  ) : (
+                    <Button variant="danger" onClick={() => onDraft(r.id, { isActive: false })}>
+                      Deactivate
+                    </Button>
+                  )}
+                </Row>
+              )
+            })}
+
+            {newRows.map((n) => (
+              <Row key={n.key} tone="new">
+                <div>
+                  <Field
+                    label="New runner name"
+                    placeholder="New runner’s name"
+                    value={n.name}
+                    onChange={(name) => onUpdateNewRow(n.key, { name })}
+                    error={errors[fieldKey(n.key, 'name')]}
+                  />
+                  <p className="mt-1 text-xs font-semibold text-emerald-700">New runner</p>
+                </div>
                 <Field
-                  label={`Name for ${r.name}`}
-                  value={d.name}
-                  onChange={(name) => onDraft(r.id, { name })}
-                  error={errors[fieldKey(r.id, 'name')]}
-                  disabled={deactivating}
+                  label="New runner IPS last 7 days"
+                  numeric
+                  placeholder="—"
+                  value={n.ips7}
+                  onChange={(ips7) => onUpdateNewRow(n.key, { ips7 })}
+                  error={errors[fieldKey(n.key, 'ips7')]}
                 />
-                <p className="mt-1 text-xs text-slate-500">
-                  {deactivating
-                    ? 'Will be hidden from the leaderboard (history kept)'
-                    : reactivating
-                      ? 'Will be reactivated'
-                      : records.has(r.id)
-                        ? null
-                        : 'No IPS entered this week'}
-                </p>
-              </div>
-              <Field
-                label={`IPS last 7 days for ${r.name}`}
-                numeric
-                placeholder="—"
-                value={d.ips7}
-                onChange={(ips7) => onDraft(r.id, { ips7 })}
-                error={errors[fieldKey(r.id, 'ips7')]}
-                disabled={deactivating}
-              />
-              <Field
-                label={`IPS last 30 days for ${r.name}`}
-                numeric
-                placeholder="—"
-                value={d.ips30}
-                onChange={(ips30) => onDraft(r.id, { ips30 })}
-                error={errors[fieldKey(r.id, 'ips30')]}
-                disabled={deactivating}
-              />
-              {deactivating || reactivating ? (
-                <Button variant="ghost" onClick={() => onDraft(r.id, { isActive: r.is_active })}>
-                  Undo
+                <Field
+                  label="New runner IPS last 30 days"
+                  numeric
+                  placeholder="—"
+                  value={n.ips30}
+                  onChange={(ips30) => onUpdateNewRow(n.key, { ips30 })}
+                  error={errors[fieldKey(n.key, 'ips30')]}
+                />
+                <Button variant="ghost" onClick={() => onRemoveNewRow(n.key)}>
+                  Remove
                 </Button>
-              ) : (
-                <Button variant="danger" onClick={() => onDraft(r.id, { isActive: false })}>
-                  Deactivate
-                </Button>
-              )}
-            </Row>
-          )
-        })}
-
-        {newRows.map((n) => (
-          <Row key={n.key} tone="new">
-            <div>
-              <Field
-                label="New runner name"
-                placeholder="New runner’s name"
-                value={n.name}
-                onChange={(name) => onUpdateNewRow(n.key, { name })}
-                error={errors[fieldKey(n.key, 'name')]}
-              />
-              <p className="mt-1 text-xs font-semibold text-emerald-700">New runner</p>
-            </div>
-            <Field
-              label="New runner IPS last 7 days"
-              numeric
-              placeholder="—"
-              value={n.ips7}
-              onChange={(ips7) => onUpdateNewRow(n.key, { ips7 })}
-              error={errors[fieldKey(n.key, 'ips7')]}
-            />
-            <Field
-              label="New runner IPS last 30 days"
-              numeric
-              placeholder="—"
-              value={n.ips30}
-              onChange={(ips30) => onUpdateNewRow(n.key, { ips30 })}
-              error={errors[fieldKey(n.key, 'ips30')]}
-            />
-            <Button variant="ghost" onClick={() => onRemoveNewRow(n.key)}>
-              Remove
-            </Button>
-          </Row>
-        ))}
-      </ul>
+              </Row>
+            ))}
+          </ul>
+        </div>
+      </div>
 
       <div className="border-t border-ink/10 p-3">
         <Button variant="ghost" className="text-emerald-700" onClick={onAddRow}>

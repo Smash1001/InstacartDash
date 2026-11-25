@@ -7,15 +7,11 @@ export function WeekBar({
   onChangeWeek,
   displayWeek,
   onShowOnTv,
-  measuredCount,
-  activeCount,
 }: {
   week: string
   onChangeWeek: (week: string) => void
   displayWeek: string | null
   onShowOnTv: () => void
-  measuredCount: number
-  activeCount: number
 }) {
   const isCurrentWeek = week === getWeekStart()
   const isOnTv = displayWeek === week
@@ -41,21 +37,10 @@ export function WeekBar({
         </Button>
         {!isCurrentWeek && (
           <Button variant="ghost" onClick={() => onChangeWeek(getWeekStart())}>
-            This week
+            Go to current week
           </Button>
         )}
-        <div className="ml-2">
-          <p className="font-bold text-slate-900">
-            Week of {formatWeekRange(week)}
-            {isCurrentWeek && <span className="ml-1.5 text-sm font-medium text-slate-500">(this week)</span>}
-          </p>
-          <p className="text-xs text-slate-500">
-            <span className="font-semibold text-slate-700">
-              {measuredCount} of {activeCount}
-            </span>{' '}
-            runners updated
-          </p>
-        </div>
+        {isCurrentWeek && <span className="ml-1 text-sm font-medium text-slate-500">(Current week)</span>}
       </div>
 
       <div className="flex items-center gap-3">

@@ -3,18 +3,12 @@ import { DashboardMenu } from '../components/DashboardMenu'
 import { Leaderboard } from '../components/Leaderboard'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { formatWeekRange } from '../lib/week'
+import { formatTimestamp } from '../lib/format'
 import { STORE_NAME } from '../config'
-
-const STATUS_STYLE = {
-  live: { dot: 'bg-emerald-600', label: 'Live' },
-  connecting: { dot: 'bg-amber-400 animate-pulse', label: 'Connecting…' },
-  offline: { dot: 'bg-rose-500 animate-pulse', label: 'Reconnecting…' },
-} as const
 
 /** Full-screen, read-only TV view. No editing controls. */
 export default function Dashboard() {
-  const { data, error, connection } = useLeaderboard()
-  const status = STATUS_STYLE[error ? 'offline' : connection]
+  const { data, error } = useLeaderboard()
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-board text-ink">
@@ -30,23 +24,18 @@ export default function Dashboard() {
         </div>
 
         <div className="shrink-0 text-right">
+          <p className="mb-[1vh] text-[clamp(0.7rem,0.85vw,1.05rem)] font-medium text-slate-600">
+            Last updated{' '}
+            <span className="font-semibold text-slate-700">
+              {formatTimestamp(data?.lastUpdated ?? null)}
+            </span>
+          </p>
           <p className="text-[clamp(0.7rem,0.95vw,1.2rem)] font-semibold uppercase tracking-widest text-slate-600">
             Week of
           </p>
           <p className="text-[clamp(1.1rem,2.1vw,2.6rem)] font-extrabold leading-tight">
             {data ? formatWeekRange(data.weekStart) : '—'}
           </p>
-          <div className="mt-[0.8vh] flex items-center justify-end gap-[1.2vw] text-[clamp(0.75rem,1vw,1.25rem)]">
-            {data && (
-              <span className="rounded-full bg-ink/10 px-[0.9vw] py-[0.3vh] font-semibold text-slate-800">
-                {data.measuredRunnerCount} of {data.activeRunnerCount} updated
-              </span>
-            )}
-            <span className="flex items-center gap-[0.4vw] text-slate-600">
-              <span className={`inline-block size-[0.7em] rounded-full ${status.dot}`} />
-              {status.label}
-            </span>
-          </div>
         </div>
       </header>
 
@@ -60,7 +49,7 @@ export default function Dashboard() {
         )}
       </main>
 
-      <AnnouncementBanner text={data?.announcement ?? ''} lastUpdated={data?.lastUpdated ?? null} />
+      <AnnouncementBanner text={data?.announcement ?? ''} />
     </div>
   )
 }

@@ -5,15 +5,13 @@ import { WeekBar } from '../components/admin/WeekBar'
 import { Button, Notice } from '../components/ui'
 import { useAdminEditor } from '../hooks/useAdminEditor'
 import { useAuth } from '../hooks/useAuth'
+import { formatTimestamp } from '../lib/format'
 import { signOut } from '../services/authService'
 
 /** Single-page admin: week, runners + IPS, and announcement, saved together. */
 export default function AdminPanel() {
   const { session } = useAuth()
   const ed = useAdminEditor()
-
-  const activeRunners = ed.runners.filter((r) => r.is_active)
-  const measuredCount = activeRunners.filter((r) => ed.records.has(r.id)).length
 
   return (
     <div className="min-h-full bg-board pb-24">
@@ -44,14 +42,12 @@ export default function AdminPanel() {
           onChangeWeek={ed.changeWeek}
           displayWeek={ed.settings?.display_week_start ?? null}
           onShowOnTv={ed.showOnTv}
-          measuredCount={measuredCount}
-          activeCount={activeRunners.length}
         />
 
         {ed.loading && !ed.runners.length ? (
           <p className="rounded-xl bg-board-light p-6 text-sm text-slate-600 ring-1 ring-ink/10">Loading…</p>
         ) : (
-          <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
             <RunnerEditor
               runners={ed.runners}
               records={ed.records}
@@ -68,7 +64,6 @@ export default function AdminPanel() {
               <AnnouncementEditor
                 value={ed.announcement}
                 onChange={ed.setAnnouncement}
-                lastPublished={ed.settings?.updated_at}
                 error={ed.errors.announcement}
                 dirty={ed.settings !== null && ed.announcement.trim() !== ed.settings.announcement}
               />
@@ -87,13 +82,13 @@ export default function AdminPanel() {
               <p className="text-sm text-slate-600">
                 {ed.changeCount
                   ? `${ed.changeCount} unsaved change${ed.changeCount === 1 ? '' : 's'}`
-                  : 'No unsaved changes'}
+                  : `Last published: ${formatTimestamp(ed.settings?.updated_at)}`}
               </p>
             )}
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" disabled={!ed.changeCount || ed.saving} onClick={ed.discard}>
-              Discard
+              Discard changes
             </Button>
             <Button variant="primary" disabled={!ed.changeCount || ed.saving} onClick={ed.saveAll}>
               {ed.saving ? 'Saving…' : 'Save all changes'}
